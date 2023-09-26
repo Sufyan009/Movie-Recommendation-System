@@ -1,0 +1,134 @@
+To run the provided code in PyCharm, follow these steps:
+
+1. Open PyCharm and create a new project or open an existing one.
+2. Create a new Python file in your project by right-clicking on the project folder in the Project tool window and selecting "New" → "Python File".
+3. Copy and paste the provided code into the newly created Python file.
+4. Save the file with a suitable name, such as "movie_recommender.py".
+
+Before running the code, make sure you have the required dependencies installed. You can install them by running the following commands in the PyCharm terminal or command prompt:
+
+```
+pip install pickle
+pip install requests
+pip install streamlit
+```
+
+Once the dependencies are installed, you can run the code by following these steps:
+
+1. Locate the toolbar at the top of the PyCharm window and find the green play button or select "Run" → "Run 'movie_recommender'" from the main menu.
+2. PyCharm will execute the code, and the Streamlit app will start running. It will display a local URL (e.g., http://localhost:8501) where you can access the app in your web browser.
+3. Open your preferred web browser and enter the local URL provided by the Streamlit app.
+4. The movie recommender system will be displayed in the web browser. You can select a movie from the dropdown menu and click the "Show Recommendation" button to view the recommended movies.
+
+Please note that the code assumes the presence of two pickle files, namely "movie_list.pkl" and "similarity.pkl", which contain the movie dataset and similarity matrix, respectively. Make sure these files are present in the same directory as the Python file you created.
+
+Regarding the README file, here's a description you can use:
+
+---
+
+## Movie Recommender System
+
+This is a simple movie recommender system implemented in Python using the Streamlit library. The recommender system suggests movies similar to a selected movie based on content-based filtering.
+
+### Requirements
+
+- Python 3.x
+- Libraries: pickle, requests, streamlit
+
+### Installation
+
+1. Clone the repository or download the code files.
+2. Install the required dependencies by running the following commands in the terminal or command prompt:
+
+   ```
+   pip install pickle
+   pip install requests
+   pip install streamlit
+   ```
+
+### Usage
+
+1. Open the code file, "movie_recommender.py", in your preferred Python IDE (e.g., PyCharm).
+2. Make sure the following files are present in the same directory as the code file:
+   - movie_list.pkl: Contains the movie dataset.
+   - similarity.pkl: Contains the precomputed similarity matrix.
+
+3. Run the code in your Python IDE.
+4. The Streamlit app will start running and display a local URL (e.g., http://localhost:8501).
+5. Open your web browser and enter the local URL provided by the Streamlit app.
+6. The movie recommender system will be displayed in the web browser.
+7. Select a movie from the dropdown menu and click the "Show Recommendation" button to view the top recommended movies.
+
+### Acknowledgments
+
+- The code implementation is based on content-based filtering techniques commonly used in recommender systems.
+- The movie dataset and similarity matrix are precomputed and stored in pickle files.
+- The movie poster images are fetched from "https://themoviedb.org" using their API.
+
+---
+
+Feel free to modify and enhance the README file according to your requirements and add any additional information or references as necessary.
+
+
+
+Certainly! Let's go through each line of the code and provide an explanation for why it is being used:
+
+```python
+import pickle
+import requests
+import streamlit as st
+```
+- These lines import the necessary libraries and modules required for the code execution. 
+- `pickle` is used to load precomputed data such as the movie list and similarity matrix from pickle files.
+- `requests` is used to make HTTP requests to the external API to fetch movie data.
+- `streamlit` is a Python library used for building interactive web applications. It is used to create the user interface for the movie recommender system.
+
+```python
+def fetch_poster(movie_id):
+    url = "https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US".format(movie_id)
+    data = requests.get(url)
+    data = data.json()
+    poster_path = data['poster_path']
+    full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+    return full_path
+```
+- This function, `fetch_poster(movie_id)`, is responsible for fetching the movie poster for a given movie ID. 
+- It constructs the API URL using the movie ID and an API key.
+- It makes a GET request to the TMDb API and retrieves the response data in JSON format.
+- It extracts the poster path from the response data and constructs the full path for the movie poster using the TMDb image base URL.
+- Finally, it returns the full path of the movie poster.
+
+```python
+def recommend(movie):
+    index = movies[movies['title'] == movie].index[0]
+    distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
+    recommended_movie_name = []
+    recommended_movie_poster = []
+    for i in distances[1:6]:
+        movie_id = movies.iloc[i[0]].movie_id
+        recommended_movie_poster.append(fetch_poster(movie_id))
+        recommended_movie_name.append(movies.iloc[i[0]].title)
+    return recommended_movie_name, recommended_movie_poster
+```
+- This function, `recommend(movie)`, generates movie recommendations based on the selected movie.
+- It takes the selected movie as input and finds its corresponding index in the movie list dataframe.
+- It retrieves the similarity values for the selected movie from the precomputed similarity matrix.
+- It sorts the similarity values in descending order and selects the top 5 similar movies (excluding the selected movie itself).
+- For each of the top similar movies, it retrieves the movie ID and uses the `fetch_poster()` function to fetch the movie poster.
+- It appends the recommended movie names and posters to separate lists.
+- Finally, it returns the lists of recommended movie names and posters.
+
+```python
+st.header('Movie Recommender System')
+movies = pickle.load(open('movie_list.pkl', 'rb'))
+similarity = pickle.load(open('similarity.pkl', 'rb'))
+```
+- This line creates a header in the web application interface indicating the title of the movie recommender system.
+- It loads the movie list and similarity matrix from pickle files using the `pickle.load()` function. The movie list and similarity matrix are stored as pickle files, which contain precomputed data for faster retrieval.
+
+```python
+movie_list = movies['title'].values
+selected_movie = st.selectbox("Type or select a movie from the dropdown", movie_list)
+```
+- These lines create a dropdown selection box in the web application interface where the user can either type or select a movie from the available options.
+- It assigns the selected movie to the `selected
